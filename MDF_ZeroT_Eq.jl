@@ -87,27 +87,40 @@ end
 #################
 ### load data ###
 #################
-L::Int64 = 100
+L::Int64 = 200
 sites::Array{Float64,1} = range(0,L-1,length=L);
-# E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,false))
-# U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,false))
-E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.1,2e-5,false))
-U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.1,2e-5,false))
+E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
+U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
+# E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.1,2e-5,false))
+# U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.1,2e-5,false))
 # E::Vector{Float64} = eigvals(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
 # U::Matrix{Float64} = eigvecs(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
 
 function C(L::Int64,N::Int64,U::Matrix{Float64})
     """
     Calculate LxL equal-time one-body correlation matrix for HCB.
+
+    INPUTS:
+    L: number of lattice sites
+    N: number of particles
+    U: LxL matrix of single particle components
+
+    OUTPUTS:
+    LxL matrix of equal-time one-body correlations. 
     """
     Cmat::Matrix{Float64} = Diagonal(diag(NCorrZeroT(N,U)))
     for i in range(1,L)
         Cmat[i,i+1:L] = map(j->Gij(i,j,L,N,U),range(i+1,L))
+        # Cmat[i,i+1:L] = [Gij(i,j,L,N,U) for j in range(i+1,L)]
     end
     return Symmetric(Cmat)
 end
 
-@time n::Matrix{Float64} = C(L,31,U)
-open(string("C_T=0_Equilibrium/C_L=100_N=31_trap_OBC.bin"),"w") do f
-    write(f,n)
+@time C_HCB::Matrix{Float64} = C(L,21,U);
+open(string("C_T=0_Equilibrium/C_L=200_N=21_free_PBC.bin"),"w") do f
+    write(f,C_HCB)
+end
+@time n_HCB::Vector{Float64} = real(map(k->nkt(k,L,C_HCB,sites),range(-pi,pi,101)));
+open(string("C_T=0_Equilibrium/n_L=200_N=21_free_PBC.bin"),"w") do f
+    write(f,n_HCB)
 end

@@ -97,3 +97,25 @@ function C_SFt(t::Float64,U2::Matrix{Float64},E2::Vector{Float64},C0::Matrix{Flo
     C2 = adjoint(D1) * C0 * D1
     return Symmetric(C2)
 end
+
+
+##############################################
+### Calculate MDF Given Correlation Matrix ###
+##############################################
+function nkt(k::Float64, L::Int64, C::Matrix{Float64}, sites::Vector{Float64})
+    """
+    Calculate momentum distribution function at finite T and non-zero time after a quench.
+    
+    INPUTS
+    k: quasi-momentum; units of 1/a
+    L: lattice sites; dimensionless
+    C: correlation matrix
+    sites: vector of L lattice sites
+
+    OUTPUT
+    Momentum distribution function
+    """
+    A = exp.(sites*complex(0,k))
+    eik = A * transpose(conj(A)) 
+    return sum(eik .* C)/L
+end
