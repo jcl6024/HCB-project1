@@ -22,7 +22,7 @@ function NCorrZeroT(N::Int, U::Matrix{Float64})
     C: matrix of one-body correlations
     """
     P = U[:,1:N]
-    C = P * transpose(P)
+    C::Matrix{Float64} = P * transpose(P)
     return Symmetric(C)
 end
 
