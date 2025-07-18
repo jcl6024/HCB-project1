@@ -88,7 +88,7 @@ function main()
     #################
     ### load data ###
     #################
-    L::Int64 = 400
+    L::Int64 = 100
     sites::Array{Float64,1} = range(0,L-1,length=L);
     E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
     U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
@@ -118,7 +118,7 @@ function main()
             Threads.@threads for i in range(1,L)
                 Cmat[i,i+1:L-(i-1)] = BLAS.map(j->Gij(i,j,L,N,U),range(i+1,L-(i-1)))
             end
-            Threads.@threads for i in range(1,L)
+            for i in range(1,L)
                 Cmat[i+1:L-i,L-(i-1)] = reverse(Cmat[i,i+1:L-i])
             end
         else
@@ -133,16 +133,17 @@ function main()
     ###############
     ### Outputs ###
     ###############
+    Nb::Int = 31
     # @time Gij(1,50,L,31,U);
-    @time C_HCB::Matrix{Float64} = C(L,31,U,true)
+    @time C_HCB::Matrix{Float64} = C(L,Nb,U,true)
     # open(string("C_T=0_Equilibrium/C_L=200_N=21_free_PBC.bin"),"w") do f
     #     write(f,C_HCB)
     # end
-    # @time n_HCB::Vector{Float64} = real(map(k->nkt(k,L,C_HCB,sites),range(-pi,pi,L+1)));
-    # open(string("C_T=0_Equilibrium/n_L=300_N=31_free_PBC_V2.bin"),"w") do f
+    # @time n_HCB::Vector{Float64} = real(BLAS.map(k->nkt(k,L,C_HCB,sites),range(-pi,pi,L+1)));
+    # open(string("C_T=0_Equilibrium/n_L=",L,"_N=",Nb,"_free_PBC.bin"),"w") do f
     #     write(f,n_HCB)
     # end
-    print(0)
+    # print(0)
 end
 
 main()
