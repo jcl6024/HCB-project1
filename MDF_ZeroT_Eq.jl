@@ -84,19 +84,21 @@ function main(L::Int64,Nb::Int64)
         """
         # Pad::Matrix{Float64} = adjoint(Pj(i,L,N,U))
         # matprod::Matrix{Float64} = Pad*Pj(j,L,N,U)
-        matprod::Matrix{Float64} = adjoint(Pj(i,L,N,U))*Pj(j,L,N,U)
+        matprod::Matrix{Float64} = adjoint(Pj(j,L,N,U))*Pj(i,L,N,U)
         return det(matprod)
     end
 
     #################
     ### load data ###
     #################
-    # L::Int64 = 300
     sites::Array{Float64,1} = range(0,L-1,length=L);
-    E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
-    U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
-    # E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.1,2e-2,true))
-    # U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.1,2e-2,true))
+    V::Float64 = 3.3*1e-4
+    # E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
+    # U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
+    println("eigenvalue time:")
+    @time E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.0,V,true))
+    println("eigenvector time:")
+    @time U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.0,V,true))
     # E::Vector{Float64} = eigvals(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
     # U::Matrix{Float64} = eigvecs(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
 
@@ -125,7 +127,7 @@ function main(L::Int64,Nb::Int64)
                 Cmat[j,j+1:L] = Cmat[j-1,j:L-1]
             end
         elseif parity==true
-            partitions = Iterators.Stateful(chunks(L,20))
+            partitions = Iterators.Stateful(chunks(L,24))
             tasks = map(partitions) do chunk 
                 Threads.@spawn for i::Int in chunk
                     for j::Int in range(i+1,L-(i-1))
@@ -135,18 +137,13 @@ function main(L::Int64,Nb::Int64)
                 end
             end
             fetch.(tasks)
-            # for i::Int in 2:L/2
-            #     Threads.@threads for j::Int in range(i+1,L-(i-1))
-            #             Cmat[i,j] = Gij(i,j,L,N,U)
-            #     end
-            #     Cmat[i+1:L-i,L-(i-1)] = reverse(Cmat[i,i+1:L-i])
-            # end
         else
-            for i::Int in range(1,L/2)
-                Threads.@threads for j in range(i+1,L)
-                    Cmat[i,j] = Gij(i,j,L,N,U)
+            Threads.@threads for i::Int in range(1,L)
+                for j::Int in range(1,L)
+                    if i != j
+                        Cmat[i,j] = Gij(i,j,L,N,U)
+                    end
                 end
-                # Cmat[i+1:L-i,L-(i-1)] = reverse(Cmat[i,i+1:L-i])
             end
         end
         return Symmetric(Cmat)
@@ -156,20 +153,29 @@ function main(L::Int64,Nb::Int64)
     ###############
     ### Outputs ###
     ###############
-    print("Gij")
-    @time Gij(1,2,L,Nb,U)
-    # @time [Gij(1,2,L,Nb,U) for j in range(2,L)]
-    print("OBDM")
+    xi::Float64 = 1/sqrt(V)
+    println(string("The characteristic denisty is ",Nb/xi))
+    # println("Gij:")
+    # @time Gij(1,2,L,Nb,U)
+    println("OBDM:")
     @time C_HCB::Matrix{Float64} = C(L,Nb,U,true,false) 
-    open(string("C_T=0_Equilibrium/C_TEST_L=",L,"_N=",Nb,"_free_PBC.bin"),"w") do f
+    open(string("C_T=0_Equilibrium_trap/C_L=",L,"_N=",Nb,"_trap_PBC.bin"),"w") do f
         write(f,C_HCB)
     end
-    print("MDF")
-    @time n_HCB::Vector{Float64} = real(BLAS.map(k->nkt(k,L,C_HCB,sites),range(-pi,pi,L+1)));
-    open(string("C_T=0_Equilibrium/n_TEST_L=",L,"_N=",Nb,"_free_PBC.bin"),"w") do f
-        write(f,n_HCB)
+    println("MDF:")
+    @time n_HCBL::Vector{Float64} = real(BLAS.map(k->nkt(k,float(L),C_HCB,sites),range(-pi,pi,L+1)));
+    open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_Lnorm.bin"),"w") do f
+        write(f,n_HCBL)
     end
-    print("done")
+    @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
+    open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_xinorm.bin"),"w") do f
+        write(f,n_HCBxi)
+    end
+    # println("Saving eigenvector data")
+    # open(string("spectrum/L=",L,"_V=",V,"_trap_PBC_energy.bin"),"w") do f
+    #    write(f,E)
+    # end
+    println("done.")
 end
 
-main(300,31)
+main(1000,31)

@@ -101,7 +101,7 @@ end
 ##############################################
 ### Calculate MDF Given Correlation Matrix ###
 ##############################################
-function nkt(k::Float64, L::Int64, C::Matrix{Float64}, sites::Vector{Float64})
+function nkt(k::Float64, L::Float64, C::Matrix{Float64}, sites::Vector{Float64})
     """
     Calculate momentum distribution function at finite T and non-zero time after a quench.
     
@@ -116,5 +116,5 @@ function nkt(k::Float64, L::Int64, C::Matrix{Float64}, sites::Vector{Float64})
     """
     A = exp.(sites*complex(0,k))
     eik = A * transpose(conj(A)) 
-    return sum(eik .* C)/L
+    return sum(eik .* C) / L
 end
