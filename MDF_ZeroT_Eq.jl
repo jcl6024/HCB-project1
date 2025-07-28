@@ -1,5 +1,6 @@
 """
 16/07/25 V1
+24/07/25 V2
 
 Zero Temperature Equilibrium Momentum Distribution Function for Hard Core Bosons.
 """
@@ -93,12 +94,12 @@ function main(L::Int64,Nb::Int64)
     #################
     sites::Array{Float64,1} = range(0,L-1,length=L);
     V::Float64 = 3.3*1e-4
-    # E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
-    # U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
-    println("eigenvalue time:")
-    @time E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.0,V,true))
-    println("eigenvector time:")
-    @time U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.0,V,true))
+    E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
+    U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
+    # println("eigenvalue time:")
+    # @time E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.0,V,true))
+    # println("eigenvector time:")
+    # @time U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.0,V,true))
     # E::Vector{Float64} = eigvals(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
     # U::Matrix{Float64} = eigvecs(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
 
@@ -157,25 +158,25 @@ function main(L::Int64,Nb::Int64)
     println(string("The characteristic denisty is ",Nb/xi))
     # println("Gij:")
     # @time Gij(1,2,L,Nb,U)
-    println("OBDM:")
+    println("HCB OBDM:")
     @time C_HCB::Matrix{Float64} = C(L,Nb,U,true,false) 
-    open(string("C_T=0_Equilibrium_trap/C_L=",L,"_N=",Nb,"_trap_PBC.bin"),"w") do f
-        write(f,C_HCB)
-    end
-    println("MDF:")
-    @time n_HCBL::Vector{Float64} = real(BLAS.map(k->nkt(k,float(L),C_HCB,sites),range(-pi,pi,L+1)));
-    open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_Lnorm.bin"),"w") do f
-        write(f,n_HCBL)
-    end
-    @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
-    open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_xinorm.bin"),"w") do f
-        write(f,n_HCBxi)
-    end
+    # open(string("C_T=0_Equilibrium_trap/C_L=",L,"_N=",Nb,"_trap_PBC.bin"),"w") do f
+    #     write(f,C_HCB)
+    # end
+    # println("HCB MDF:")
+    # @time n_HCBL::Vector{Float64} = real(BLAS.map(k->nkt(k,float(L),C_HCB,sites),range(-pi,pi,L+1)));
+    # open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_Lnorm.bin"),"w") do f
+    #     write(f,n_HCBL)
+    # end
+    # @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
+    # open(string("C_T=0_Equilibrium_trap/n_L=",L,"_N=",Nb,"_trap_PBC_xinorm.bin"),"w") do f
+    #     write(f,n_HCBxi)
+    # end
     # println("Saving eigenvector data")
     # open(string("spectrum/L=",L,"_V=",V,"_trap_PBC_energy.bin"),"w") do f
     #    write(f,E)
     # end
-    println("done.")
+    # println("done.")
 end
 
-main(1000,31)
+main(10,3)

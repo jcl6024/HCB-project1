@@ -75,7 +75,7 @@ end
 #######################
 ### Time Dependence ###
 #######################
-function C_SFt(t::Float64,U2::Matrix{Float64},E2::Vector{Float64},C0::Matrix{Float64})
+function C_SFt(t::Float64,U2::Matrix{Float64},E2::Vector{Float64},C0::Matrix{ComplexF64})
     """
     Calculate equal-time one-body density matrix at non-zero time after a quench.
     
@@ -101,7 +101,7 @@ end
 ##############################################
 ### Calculate MDF Given Correlation Matrix ###
 ##############################################
-function nkt(k::Float64, L::Float64, C::Matrix{Float64}, sites::Vector{Float64})
+function nkt(k::Float64, L::Float64, C::Matrix{ComplexF64}, sites::Vector{Float64})
     """
     Calculate momentum distribution function at finite T and non-zero time after a quench.
     
