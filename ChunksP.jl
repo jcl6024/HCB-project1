@@ -28,7 +28,7 @@ function chunks(L::Int,Nc::Int)
         for j in range(i+1,L-(i-1))
             G+=1
         end
-        if G>F/Nc
+        if G>=F/Nc
             push!(MT,i)
             G=0
         end

@@ -64,7 +64,7 @@ function BraggHamiltonian(L::Int, t::Float64, v::Float64, g::Float64, m::Int, q:
     """
     H = ZeroMat(L)
     for i in range(1,L)
-        H[i,i] = v + g*(i-(L/2+1/2)).^2 + m *cos.(q*(i-(L/2+1/2))).^2
+        H[i,i] = v + g*(i-(L/2+1/2)).^2 + m *cos.(q*i).^2
     end
     for i in range(1,L-1)
         H[i,i+1] = -t

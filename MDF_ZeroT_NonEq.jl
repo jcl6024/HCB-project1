@@ -45,7 +45,48 @@ function O(j::Int,L::Int)
     return Id
 end
 
-function Pjt(t::Float64,j::Int64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E2::Vector{Float64})
+function Dt(E::Vector{Float64},t::Float64)
+    """
+    Construct diagonal matrix representation of time evolution operator
+    in the basis of eigenvalues E.
+
+    INPUTS
+    E: vector of eigenvalues
+    t: time
+
+    OUTPUT
+    diagonal matrix of dimension dim(E).
+    """
+    return Diagonal(exp.(complex(0,-t)*E))
+end
+
+function Pt(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E2::Vector{Float64})
+    """
+    Construct the matrix P of coefficients of an initial state (assuming
+    ground state) with additional row corresponding to creation of a particle
+    at the site j and corresponding signs owing to Jordan-Wigner strings. Time 
+    evolve according to Bragg pulse quench.
+
+    INPUTS
+    tau: duration of Bragg scattering pulse
+    t: time variable
+    j: site index
+    L: number of lattice sites
+    N: number of particles
+    U: unitary matrix of components of single particle eigenstates pre-quench
+    U2: unitary matrix of components of single particle Bragg eigenstates
+    E2: vector of Bragg eigenenergies
+
+    OUTPUTS
+    Lx(N+1) matrix of components of single-particle eigenstates after action
+    of Jordan-Wigner strings and particle creation at site j.
+    """
+    P::Matrix{ComplexF64} = U2 * Dt(E2,t) * adjoint(U2) * U[:,1:N]
+    return P
+end
+
+
+function Pjt(j::Int64,L::Int64,Pt::Matrix{ComplexF64})
     """
     Construct the matrix P of coefficients of an initial state (assuming
     ground state) with additional row corresponding to creation of a particle
@@ -66,13 +107,10 @@ function Pjt(t::Float64,j::Int64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix
     """
     colj::Vector{Int} = zeros(Int,L)
     colj[j] = 1
-    Dt::Matrix{ComplexF64} = Diagonal(exp.(complex(0,-t)*E2))
-    Pt::Matrix{ComplexF64} = U2 * Dt * adjoint(U2) * U[:,1:N]
-    P1::Matrix{ComplexF64} = O(j,L)*([Pt;;colj])
-    return P1
+    return  O(j,L)*([Pt;;colj])
 end
 
-function Gijt(i::Int64,j::Int64,t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E2::Vector{Float64})
+function Gijt(i::Int64,j::Int64,L::Int64,Pt::Matrix{ComplexF64})
     """
     Calculate one-body Green's function for i!=j.
 
@@ -88,7 +126,7 @@ function Gijt(i::Int64,j::Int64,t::Float64,L::Int64,N::Int64,U::Matrix{Float64},
     OUTPUT
     ji entry of the correlation matrix.
     """
-    matprod::Matrix{ComplexF64} = transpose(conj(Pjt(t,j,L,N,U,U2,E2)))*Pjt(t,i,L,N,U,U2,E2)
+    matprod::Matrix{ComplexF64} = transpose(conj(Pjt(j,L,Pt)))*Pjt(i,L,Pt)
     return det(matprod)
 end
 
@@ -110,9 +148,10 @@ function C(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E
     """
     Ct0::Matrix{ComplexF64} = NCorrZeroT(N,U)
     Cmat::Matrix{ComplexF64} = Diagonal(diag(C_SFt(t,U2,E2,Ct0)))
+    P::Matrix{ComplexF64} = Pt(t,L,N,U,U2,E2)
     if TI==true
         Threads.@threads for j in range(2,L)
-            Cmat[1,j] = Gijt(1,j,t,L,N,U,U2,E2)
+            Cmat[1,j] = Gijt(1,j,L,P)
         end
         for j in range(2,L-1)
             Cmat[j,j+1:L] = Cmat[j-1,j:L-1]
@@ -122,7 +161,7 @@ function C(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E
         tasks = map(partitions) do chunk 
             Threads.@spawn for i::Int in chunk
                 for j::Int in range(i+1,L-(i-1))
-                    Cmat[i,j] = Gijt(i,j,t,L,N,U,U2,E2)
+                    Cmat[i,j] = Gijt(i,j,L,P)
                 end
                 Cmat[i+1:L-i,L-(i-1)] = reverse(conj.(Cmat[i,i+1:L-i]))
             end
@@ -131,8 +170,8 @@ function C(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E
     else
         Threads.@threads for i::Int in range(1,L)
             for j::Int in range(1,L)
-                if i != j
-                    Cmat[i,j] = Gijt(i,j,t,L,N,U,U2,E2)
+                if i < j
+                    Cmat[i,j] = Gijt(i,j,L,P)
                 end
             end
         end
@@ -154,32 +193,33 @@ function main(L::Int64,Nb::Int64,V::Float64,t::Float64)
 
     xi::Float64 = 1/sqrt(V)
     println(string("The characteristic denisty is ",Nb/xi))
-    # println("Gijt:")
-    # @time Gijt(1,2,t,L,Nb,U,U2,E2)
-    # println("Saving eigenvector data")
-    # open(string("spectrum/L=",L,"_V=",V,"_trap_PBC_energy.bin"),"w") do f
-    #    write(f,E)
-    # end
 
-    println("OBDM:")
-    @time C_HCB::Matrix{ComplexF64} =  C(t,L,Nb,U,U2,E2,true,false) 
-    # open(string("C_T=0_NonEq/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
-    #     write(f,C_HCB)
-    # end
-    # println("MDF:")
-    # @time n_HCBL::Vector{Float64} = real(BLAS.map(k->nkt(k,float(L),C_HCB,sites),range(-pi,pi,L+1)));
-    # open(string("C_T=0_NonEq/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC_Lnorm.bin"),"w") do f
-    #     write(f,n_HCBL)
-    # end
-    # @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
-    # open(string("C_T=0_NonEq/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC_xinorm.bin"),"w") do f
-    #     write(f,n_HCBxi)
-    # end
-    # println(string("t=",t," done."))
+    print("Chunks: ")
+    println(length(chunks(L,24)))
+
+    if t==0
+        print("SF OBDM time: ")
+        @time C_SF::Matrix{ComplexF64} = NCorrZeroT(Nb,U)
+        print("SF MDF time: ")
+        @time n_SF::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_SF,sites),range(-pi,pi,L+1)));
+        open("HCB_free_expansion/SF_n_L=$(L)_N=$(Nb)_V=$(V)_t=$(t)_trap_PBC.bin","w") do f
+            write(f,n_SF)
+        end
+    end
+
+    print("HCB OBDM time: ")
+    @time C_HCB::Matrix{ComplexF64} = C(t,L,Nb,U,U2,E2,true,false) 
+    open(string("HCB_free_expansion/C/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+        write(f,C_HCB)
+    end
+    print("HCB MDF time: ")
+    @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
+    open(string("HCB_free_expansion/n/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+        write(f,n_HCBxi)
+    end
 end
 
-main(10,3,1e-2,1.0)
-
-# for t in range(10,100,10)
-#     main(400,31,5*1e-4,t)
-# end
+for t::Float64 in [0,20,200,600]
+    println(t)
+    # main(1000,101,2.6*1e-5,t)
+end

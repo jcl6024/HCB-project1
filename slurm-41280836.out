@@ -1,0 +1,14 @@
+The characteristic denisty is 0.6931810730249348
+Chunks: 23
+SF OBDM time:   0.003497 seconds (12 allocations: 7.748 MiB)
+SF MDF time:   1.306030 seconds (7.52 k allocations: 3.744 GiB, 30.54% gc time)
+HCB OBDM time: 229.056880 seconds (3.88 G allocations: 396.594 GiB, 29.59% gc time, 15.34% compilation time)
+HCB MDF time:   1.103550 seconds (7.52 k allocations: 3.744 GiB, 21.29% gc time)
+The characteristic denisty is 0.6931810730249348
+Chunks: 23
+HCB OBDM time: 225.647903 seconds (3.88 G allocations: 396.416 GiB, 29.34% gc time)
+HCB MDF time:   0.963394 seconds (7.52 k allocations: 3.744 GiB, 28.98% gc time)
+
+real	8m1.936s
+user	106m8.937s
+sys	2m9.276s
