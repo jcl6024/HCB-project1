@@ -16,6 +16,7 @@ using NonlinearSolve
 using Roots
 using Distributed
 using LinearAlgebra
+using BenchmarkTools
 ###############
 ### Include ###
 ###############
@@ -192,10 +193,10 @@ function main(L::Int64,Nb::Int64,V::Float64,t::Float64)
     # U::Matrix{Float64} = eigvecs(BraggHamiltonian(L,1.0,0.1,0.0,20,pi/4,false))
 
     xi::Float64 = 1/sqrt(V)
-    println(string("The characteristic denisty is ",Nb/xi))
+    # println(string("The characteristic denisty is ",Nb/xi))
 
-    print("Chunks: ")
-    println(length(chunks(L,24)))
+    # print("Chunks: ")
+    # println(length(chunks(L,24)))
 
     if t==0
         print("SF OBDM time: ")
@@ -207,19 +208,26 @@ function main(L::Int64,Nb::Int64,V::Float64,t::Float64)
         end
     end
 
-    print("HCB OBDM time: ")
+    # print("HCB OBDM time: ")
+    # C_HCB::Matrix{ComplexF64} = C(t,L,Nb,U,U2,E2,true,false) 
+    # @time Dt(E,t)
+    @time Ptest::Matrix{ComplexF64} = Pt(t,L,Nb,U,U2,E2)
+    @time Ptest2::Matrix{ComplexF64} = Pjt(5,L,Ptest)
+    @time Gijt(50,51,L,Ptest2)
+    # print(0)
     @time C_HCB::Matrix{ComplexF64} = C(t,L,Nb,U,U2,E2,true,false) 
-    open(string("HCB_free_expansion/C/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+    open(string("HCB_free_expansion/C/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC_V2.bin"),"w") do f
         write(f,C_HCB)
     end
     print("HCB MDF time: ")
     @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
-    open(string("HCB_free_expansion/n/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+    open(string("HCB_free_expansion/n/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC_V2.bin"),"w") do f
         write(f,n_HCBxi)
     end
 end
 
-for t::Float64 in [0,20,200,600]
-    println(t)
-    # main(1000,101,2.6*1e-5,t)
-end
+main(400,51,1e-4,30.0)
+
+# for t::Float64 in [0,20,200,600]
+#     main(1000,101,2.6*1e-5,t)
+# end

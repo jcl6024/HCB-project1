@@ -45,4 +45,4 @@ function chunks(L::Int,Nc::Int)
     return ChunkVec
 end
 
-chunks(1000,24)
+chunks(300,24)

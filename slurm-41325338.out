@@ -1,0 +1,41 @@
+The characteristic denisty is 0.51
+Chunks: 24
+SF OBDM time:   0.017304 seconds (12 allocations: 30.907 MiB, 48.33% gc time)
+SF MDF time:  11.687147 seconds (15.02 k allocations: 29.877 GiB, 13.64% gc time)
+  0.018952 seconds (21 allocations: 17.624 MiB, 6.93% gc time)
+  0.033157 seconds (108.54 k allocations: 4.237 MiB, 88.72% compilation time)
+  0.011156 seconds (209.02 k allocations: 8.128 MiB)
+HCB OBDM time: 807.605111 seconds (51.26 G allocations: 1.901 TiB, 65.89% gc time, 2.26% compilation time)
+HCB MDF time:   9.798870 seconds (15.02 k allocations: 29.877 GiB, 16.37% gc time)
+The characteristic denisty is 0.51
+Chunks: 24
+  0.006980 seconds (21 allocations: 17.624 MiB)
+  0.002883 seconds (102.50 k allocations: 3.945 MiB)
+  0.007364 seconds (209.02 k allocations: 8.128 MiB, 20.54% gc time)
+HCB OBDM time: 770.762915 seconds (51.25 G allocations: 1.901 TiB, 64.69% gc time)
+HCB MDF time:   9.298268 seconds (15.02 k allocations: 29.877 GiB, 17.36% gc time)
+The characteristic denisty is 0.51
+Chunks: 24
+  0.007852 seconds (21 allocations: 17.624 MiB, 15.81% gc time)
+  0.003482 seconds (102.50 k allocations: 3.945 MiB)
+  0.006586 seconds (209.02 k allocations: 8.128 MiB)
+HCB OBDM time: 769.026587 seconds (51.25 G allocations: 1.901 TiB, 64.20% gc time)
+HCB MDF time:   9.889251 seconds (15.02 k allocations: 29.877 GiB, 18.32% gc time)
+The characteristic denisty is 0.51
+Chunks: 24
+  0.007636 seconds (21 allocations: 17.624 MiB, 18.50% gc time)
+  0.002706 seconds (102.50 k allocations: 3.945 MiB)
+  0.006403 seconds (209.02 k allocations: 8.128 MiB)
+HCB OBDM time: 765.158020 seconds (51.25 G allocations: 1.901 TiB, 64.29% gc time)
+HCB MDF time:   9.380435 seconds (15.02 k allocations: 29.877 GiB, 17.18% gc time)
+The characteristic denisty is 0.51
+Chunks: 24
+  0.007350 seconds (21 allocations: 17.624 MiB, 16.29% gc time)
+  0.002693 seconds (102.50 k allocations: 3.945 MiB)
+  0.006809 seconds (209.02 k allocations: 8.128 MiB)
+HCB OBDM time: 766.704664 seconds (51.25 G allocations: 1.901 TiB, 64.64% gc time)
+HCB MDF time:  10.542288 seconds (15.02 k allocations: 29.877 GiB, 16.39% gc time)
+
+real	66m6.727s
+user	941m11.274s
+sys	53m45.065s

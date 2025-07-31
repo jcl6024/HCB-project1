@@ -1,0 +1,26 @@
+
+[1076571] signal 11 (128): Segmentation fault
+in expression starting at /storage/work/jcl6024/HCB-project1/MDF_ZeroT_NonEq.jl:222
+jl_is_globally_rooted at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/staticdata.c:2488
+jl_as_global_root at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/staticdata.c:2503
+inst_datatype_inner at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/jltypes.c:2115
+jl_inst_arg_tuple_type at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/jltypes.c:2338
+arg_type_tuple at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/gf.c:2278 [inlined]
+jl_lookup_generic_ at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/gf.c:3074 [inlined]
+ijl_apply_generic at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/gf.c:3121
+_typed_hvncat at ./abstractarray.jl:2431
+_typed_hvncat at ./abstractarray.jl:2387 [inlined]
+_hvncat at ./abstractarray.jl:2366 [inlined]
+hvncat at ./abstractarray.jl:2360 [inlined]
+Pjt at /storage/work/jcl6024/HCB-project1/MDF_ZeroT_NonEq.jl:110
+Gijt at /storage/work/jcl6024/HCB-project1/MDF_ZeroT_NonEq.jl:129
+#4 at /storage/work/jcl6024/HCB-project1/MDF_ZeroT_NonEq.jl:164
+unknown function (ip: 0x14b0400849cf)
+jl_apply at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/julia.h:2157 [inlined]
+start_task at /cache/build/tester-amdci5-12/julialang/julia-release-1-dot-11/src/task.c:1202
+Allocations: 119766800966 (Pool: 119766800256; Big: 710); GC: 114935
+/var/spool/slurm/d/job41286760/slurm_script: line 15: 1076571 Segmentation fault      (core dumped) julia -O3 --threads 24 MDF_ZeroT_NonEq.jl
+
+real	329m31.324s
+user	4465m12.441s
+sys	26m33.856s
