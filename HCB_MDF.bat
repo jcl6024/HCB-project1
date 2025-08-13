@@ -4,8 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=24
 #SBATCH --mem=64gb
-#SBATCH --time=2:00:00
-#SBATCH --job-name=HCB_free_expansion_L=1000_N=51_V=1e-4
+#SBATCH --time=12:00:00
+#SBATCH --job-name=HCB_free_expansion_L=1000_N=301_V=5x1e-3
 
 cd $SLURM_SUBMIT_DIR
 

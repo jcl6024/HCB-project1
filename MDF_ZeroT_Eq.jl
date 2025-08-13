@@ -73,7 +73,7 @@ function Gij(i::Int64,j::Int64,L::Int64,N::Int64,U::Matrix{Float64})
     Calculate one-body Green's function for i!=j.
 
     INPUTS
-    j: site index
+    i,j: site index
     L: number of lattice sites
     N: number of particles
     U: unitary matrix of components of single particle eigenstates
@@ -81,9 +81,6 @@ function Gij(i::Int64,j::Int64,L::Int64,N::Int64,U::Matrix{Float64})
     OUTPUT
     ji entry of the correlation matrix.
     """
-    # Pad::Matrix{Float64} = adjoint(Pj(i,L,N,U))
-    # matprod::Matrix{Float64} = Pad*Pj(j,L,N,U)
-    # matprod::Matrix{Float64} = adjoint(Pj(j,L,N,U))*Pj(i,L,N,U)
     return det(BLAS.gemm('C','N',Pj(j,L,N,U),Pj(i,L,N,U)))::Float64
 end
 

@@ -246,6 +246,8 @@ function main(L::Int64,Nb::Int64,V::Float64,t::Float64)
     end
 end
 
-for t::Float64 in range(0,200,5)
-    main(1000,51,1e-4,t)
+# main(1000,301,5*1e-3,10.0)
+
+for t::Float64 in range(50,150,3)
+    main(1000,301,5*1e-3,t)
 end
