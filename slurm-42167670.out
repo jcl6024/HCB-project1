@@ -1,0 +1,40 @@
+The characteristic denisty is 0.51
+  0.000267 seconds (14 allocations: 160.031 KiB)
+HCB OBDM:
+  2.347422 seconds (847.93 k allocations: 1.913 GiB, 14.14% gc time, 760.68% compilation time)
+HCB MDF:
+  0.017346 seconds (1.22 k allocations: 31.322 MiB)
+The characteristic denisty is 0.505
+  0.000736 seconds (14 allocations: 631.656 KiB)
+HCB OBDM:
+ 24.488354 seconds (390.66 k allocations: 29.876 GiB, 21.54% gc time)
+HCB MDF:
+  0.053731 seconds (3.02 k allocations: 247.274 MiB, 24.42% gc time)
+The characteristic denisty is 0.5033333333333333
+  0.003905 seconds (18 allocations: 1.383 MiB)
+HCB OBDM:
+146.398241 seconds (968.42 k allocations: 151.109 GiB, 22.25% gc time)
+HCB MDF:
+  0.193001 seconds (4.52 k allocations: 830.963 MiB, 22.16% gc time)
+The characteristic denisty is 0.5025
+  0.002705 seconds (18 allocations: 2.454 MiB)
+HCB OBDM:
+580.278104 seconds (1.72 M allocations: 477.369 GiB, 18.11% gc time)
+HCB MDF:
+  0.513143 seconds (6.02 k allocations: 1.919 GiB, 21.89% gc time)
+The characteristic denisty is 0.502
+  0.004537 seconds (18 allocations: 3.830 MiB)
+HCB OBDM:
+1431.046700 seconds (2.69 M allocations: 1.138 TiB, 17.77% gc time)
+HCB MDF:
+  0.980077 seconds (7.52 k allocations: 3.744 GiB, 19.33% gc time)
+The characteristic denisty is 0.5016666666666667
+  0.007004 seconds (18 allocations: 5.512 MiB)
+HCB OBDM:
+3230.217983 seconds (3.87 M allocations: 2.359 TiB, 16.09% gc time)
+HCB MDF:
+  1.750672 seconds (9.02 k allocations: 6.464 GiB, 18.70% gc time)
+
+real	91m17.217s
+user	1470m11.419s
+sys	233m49.758s

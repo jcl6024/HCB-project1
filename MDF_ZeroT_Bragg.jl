@@ -35,15 +35,13 @@ function O(j::Int,L::Int)
     INPUTS
     j: site index
     L: number of lattice sites
-
+ 
     OUTPUT
     LxL diagonal matrix.
     """
-    Id::Matrix{Int} = Matrix(1I,L,L)
-    for i in range(1,j-1)
-        Id[i,i]=-1
-    end
-    return Id
+    Id::Vector{Float64} =  ones(L)
+    BLAS.scal!(j-1,-1.0,Id,stride(Id,1))
+    return Diagonal(Id)
 end
 
 function Dt(E::Vector{Float64},t::Float64)
@@ -58,7 +56,7 @@ function Dt(E::Vector{Float64},t::Float64)
     OUTPUT
     diagonal matrix of dimension dim(E).
     """
-    return Diagonal(exp.(complex(0,-t)*E))
+    return exp.(complex(0,-t)*E)
 end
 
 function Pt(tau::Float64,t::Float64,L::Int64,N::Int64,U::Matrix{Float64},E::Vector{Float64},U2::Matrix{Float64},E2::Vector{Float64})
@@ -82,10 +80,45 @@ function Pt(tau::Float64,t::Float64,L::Int64,N::Int64,U::Matrix{Float64},E::Vect
     Lx(N+1) matrix of components of single-particle eigenstates after action
     of Jordan-Wigner strings and particle creation at site j.
     """
-    Ptau::Matrix{ComplexF64} = U2 * Dt(E2,tau) * adjoint(U2) * U[:,1:N]
-    Pt::Matrix{ComplexF64} = U * Dt(E,t) * adjoint(U) * Ptau
-    return Pt
+    # Ptau::Matrix{ComplexF64} = adjoint(U2) * U[:,1:N]
+    # Ptau = Dt(E2,tau) .* Ptau 
+    # Ptau = U2 * Ptau 
+    # Pt::Matrix{ComplexF64} = adjoint(U) * Ptau
+    # Pt = Dt(E,t) .* Pt
+    # Pt = U * Pt  
+    Ptau::Matrix{ComplexF64} = BLAS.gemm('T','N',U2,U[:,1:N])
+    Ptau = Dt(E2,tau) .* Ptau
+    Ptau = BLAS.gemm('N','N',complex.(U2),Ptau)
+    Pt::Matrix{ComplexF64} = BLAS.gemm('C','N',complex.(U),Ptau)
+    Pt = Dt(E,t) .* Pt
+    return BLAS.gemm('N','N',complex.(U),Pt)
 end
+
+# function Pt(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},E2::Vector{Float64})
+#     """
+#     Construct the matrix P of coefficients of an initial state (assuming
+#     ground state) with additional row corresponding to creation of a particle
+#     at the site j and corresponding signs owing to Jordan-Wigner strings. Time 
+#     evolve according to Bragg pulse quench.
+
+#     INPUTS
+#     tau: duration of Bragg scattering pulse
+#     t: time variable
+#     j: site index
+#     L: number of lattice sites
+#     N: number of particles
+#     U: unitary matrix of components of single particle eigenstates pre-quench
+#     U2: unitary matrix of components of single particle Bragg eigenstates
+#     E2: vector of Bragg eigenenergies
+
+#     OUTPUTS
+#     Lx(N+1) matrix of components of single-particle eigenstates after action
+#     of Jordan-Wigner strings and particle creation at site j.
+#     """
+#     P::Matrix{Float64} = BLAS.gemm('C','N',U2,U[:,1:N])
+#     P2::Matrix{ComplexF64} = Dt2(E2,t) .* complex.(P)
+#     return BLAS.gemm('N','N',complex.(U2),P2)
+# end
 
 function PjtB(j::Int64,L::Int,Pt::Matrix{ComplexF64})
     """
@@ -129,9 +162,8 @@ function Gijt(i::Int64,j::Int64,L::Int,Pt::Matrix{ComplexF64})
 
     OUTPUT
     ji entry of the correlation matrix.
-    """
-    matprod = adjoint(PjtB(j,L,Pt))*PjtB(i,L,Pt)
-    return det(matprod)
+    """    
+    return det(BLAS.gemm('C','N',PjtB(j,L,Pt),PjtB(i,L,Pt)))
 end
 
 
@@ -196,34 +228,34 @@ function main(L::Int64,Nb::Int64,V::Float64,tau::Float64,t::Float64)
     #################
     sites::Array{Float64,1} = range(0,L-1,length=L);
       
-    xi::Float64 = 1/sqrt(V)
-    E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.1,V,true))
-    U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.1,V,true))
+    # xi::Float64 = 1/sqrt(V)
+    # E::Vector{Float64} = eigvals(TrapHamiltonian(L,1.0,0.1,V,true))
+    # U::Matrix{Float64} = eigvecs(TrapHamiltonian(L,1.0,0.1,V,true))
 
-    # xi::Float = L
-    # E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
-    # U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
+    xi::Float64 = L
+    E::Vector{Float64} = eigvals(FreeHamiltonian(L,1.0,0.1,true))
+    U::Matrix{Float64} = eigvecs(FreeHamiltonian(L,1.0,0.1,true))
 
     E2::Vector{Float64} = eigvals(BraggHamiltonian(L,1.0,0.1,V,20,pi/4,true))
     U2::Matrix{Float64} = eigvecs(BraggHamiltonian(L,1.0,0.1,V,20,pi/4,true))
 
     println(string("The characteristic denisty is ",Nb/xi))
-    println("Gijt:")
-    Gijt(Int(L/2),Int(L/2)+1,tau,t,L,Nb,U,E,U2,E2)
 
     println("OBDM:")
     @time C_HCB::Matrix{ComplexF64} =  C(tau,t,L,Nb,U,E,U2,E2,false,false) 
-    open("T=0_Bragg/C/C_L=$(L)_N=$(Nb)_V=$(V)_tau=$(tau)_t=$(t)_trap_bragg_PBC.bin","w") do f
+    open("T=0_Bragg/C/C_L=$(L)_N=$(Nb)_V=$(V)_tau=$(tau)_t=$(t)_trap_bragg_PBC_V2.bin","w") do f
         write(f,C_HCB)
     end
     println("MDF:")
     @time n_HCB::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
-    open("T=0_Bragg/n/n_L=$(L)_N=$(Nb)_V=$(V)_tau=$(tau)_t=$(t)_trap_bragg_PBC.bin","w") do f
+    open("T=0_Bragg/n/n_L=$(L)_N=$(Nb)_V=$(V)_tau=$(tau)_t=$(t)_trap_bragg_PBC_V2.bin","w") do f
         write(f,n_HCB)
     end
     println(string("t=",t," done."))
 end
 
-for t::Float64 in range(0,5,11)
-    main(500,31,1e-4,0.1,t)
+# main(600,31,0.0,0.1,0.0)
+
+for t::Float64 in range(10,100,10)
+    main(600,31,0.0,0.1,t)
 end

@@ -91,15 +91,11 @@ function Pt(t::Float64,L::Int64,N::Int64,U::Matrix{Float64},U2::Matrix{Float64},
     Lx(N+1) matrix of components of single-particle eigenstates after action
     of Jordan-Wigner strings and particle creation at site j.
     """
-    P::Matrix{Float64} = BLAS.gemm('C','N',U2,U[:,1:N])
+    P::Matrix{Float64} = BLAS.gemm('T','N',U2,U[:,1:N])
     P2::Matrix{ComplexF64} = Dt2(E2,t) .* complex.(P)
-    # P3::Matrix{ComplexF64} = BLAS.gemm('N','N',complex.(U2),P2)
-    # Pr::Matrix{ComplexF64} = BLAS.gemm('N','N',1.0+0.0*im,Dt(E2,t),P)
-    # P::Matrix{ComplexF64} = U2 * Dt(E2,t) * P
-    # (U2*Dt(E2,t)*adjoint(U2)*U[:,1:N])::Matrix{ComplexF64}
-    return BLAS.gemm('N','N',complex.(U2),P2)
+    P2 = BLAS.gemm('N','N',complex.(U2),P2)
+    return P2
 end
-
 
 function Pjt(j::Int64,L::Int64,Pt::Matrix{ComplexF64})
     """
@@ -230,24 +226,24 @@ function main(L::Int64,Nb::Int64,V::Float64,t::Float64)
     end
 
 
-    @time Ptest::Matrix{ComplexF64} = Pt(t,L,Nb,U,U2,E2)
-    @time Ptest2::Matrix{ComplexF64} = Pjt(Int(L/2),L,Ptest)
-    @time Gijt(1,2,L,Ptest2)
+    @time Pt(t,L,Nb,U,U2,E2)
+    # @time Ptest2::Matrix{ComplexF64} = Pjt(Int(L/2),L,Ptest)
+    # @time Gijt(1,2,L,Ptest2)
 
-    print("HCB OBDM time: ")
-    @time C_HCB::Matrix{ComplexF64} = C(t,L,Nb,U,U2,E2,true,false) 
-    open(string("HCB_free_expansion/C/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
-        write(f,C_HCB)
-    end
-    print("HCB MDF time: ")
-    @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
-    open(string("HCB_free_expansion/n/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
-        write(f,n_HCBxi)
-    end
+    # print("HCB OBDM time: ")
+    # @time C_HCB::Matrix{ComplexF64} = C(t,L,Nb,U,U2,E2,true,false) 
+    # open(string("HCB_free_expansion/C/C_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+    #     write(f,C_HCB)
+    # end
+    # print("HCB MDF time: ")
+    # @time n_HCBxi::Vector{Float64} = real(BLAS.map(k->nkt(k,xi,C_HCB,sites),range(-pi,pi,L+1)));
+    # open(string("HCB_free_expansion/n/n_L=",L,"_N=",Nb,"_V=",V,"_t=",t,"_trap_PBC.bin"),"w") do f
+    #     write(f,n_HCBxi)
+    # end
 end
 
-# main(1000,301,5*1e-3,10.0)
+main(10,3,5*1e-3,10.0)
 
-for t::Float64 in range(50,150,3)
-    main(1000,301,5*1e-3,t)
-end
+# for t::Float64 in range(50,150,3)
+#     main(1000,301,5*1e-3,t)
+# end

@@ -5,11 +5,11 @@
 #SBATCH --ntasks=24
 #SBATCH --mem=64gb
 #SBATCH --time=12:00:00
-#SBATCH --job-name=HCB_free_expansion_L=1000_N=301_V=5x1e-3
+#SBATCH --job-name=HCB_FiniteT_eq_beta=10_half_filling
 
 cd $SLURM_SUBMIT_DIR
 
 module load julia/1.11.2
 
 SYSTEM=$SLURM_SUBMIT_DIR/System
-time julia -O3 --threads 24 MDF_ZeroT_NonEq_V2.jl
+time julia -O3 --threads 24 MDF_FiniteT_Eq.jl
