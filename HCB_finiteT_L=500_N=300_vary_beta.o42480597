@@ -1,0 +1,16 @@
+HCB OBDM:
+955.948930 seconds (3.61 M allocations: 1.138 TiB, 19.02% gc time, 3.41% compilation time)
+HCB MDF:
+  1.144943 seconds (7.52 k allocations: 3.744 GiB, 23.91% gc time)
+0HCB OBDM:
+848.023790 seconds (2.81 M allocations: 1.138 TiB, 20.10% gc time)
+HCB MDF:
+  0.853116 seconds (7.52 k allocations: 3.744 GiB, 19.82% gc time)
+0HCB OBDM:
+873.318428 seconds (2.81 M allocations: 1.138 TiB, 19.30% gc time)
+HCB MDF:
+  1.096005 seconds (7.52 k allocations: 3.744 GiB, 20.74% gc time)
+0
+real	45m7.557s
+user	770m38.842s
+sys	27m46.906s

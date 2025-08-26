@@ -48,7 +48,7 @@ function NCorrFiniteT(L::Int, beta::Float64, U::Matrix{Float64}, E::Vector{Float
     Dprime::Matrix{Float64} = U * D * transpose(U)
     # Dprime2::Matrix{Float64} = U * Dprime
     C::Matrix{Float64} = identity - Dprime
-    return Symmetric(C)
+    return C
 end
 
 function GetChemicalPotential(L::Int64, beta::Float64, N::Int64, U::Matrix{Float64}, E::Vector{Float64})

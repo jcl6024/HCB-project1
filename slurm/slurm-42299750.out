@@ -1,0 +1,19 @@
+The characteristic denisty is 3.0
+HCB OBDM:
+1545.759201 seconds (3.57 M allocations: 1.252 TiB, 15.41% gc time, 2.61% compilation time)
+HCB MDF:
+  1.145618 seconds (7.52 k allocations: 3.744 GiB, 20.80% gc time)
+The characteristic denisty is 3.0
+HCB OBDM:
+1256.082565 seconds (2.81 M allocations: 1.252 TiB, 17.09% gc time)
+HCB MDF:
+  0.986713 seconds (7.52 k allocations: 3.744 GiB, 25.19% gc time)
+The characteristic denisty is 3.0
+HCB OBDM:
+1761.282864 seconds (2.81 M allocations: 1.252 TiB, 13.60% gc time)
+HCB MDF:
+  1.116171 seconds (7.52 k allocations: 3.744 GiB, 20.26% gc time)
+
+real	76m20.135s
+user	1327m40.617s
+sys	108m31.043s

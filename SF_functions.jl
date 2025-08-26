@@ -22,7 +22,16 @@ function NCorrZeroT(N::Int, U::Matrix{Float64})
     """
     P = U[:,1:N]
     C::Matrix{Float64} = P * transpose(P)
-    return Symmetric(C)
+    return C #Symmetric(C)
+end
+
+function NCorrZeroT_Mott(N::Int,L::Int)
+    """
+    Initial correlation matrix for a pure Mott insulator in a trap with N particles
+    """
+    C::Vector{Float64} = zeros(Float64,L)
+    C[Int((L-N)/2):Int((L+N)/2)] .= 1.0
+    return Diagonal(C)
 end
 
 
@@ -91,10 +100,10 @@ function C_SFt(t::Float64,U2::Matrix{Float64},E2::Vector{Float64},C0::Matrix{Com
     OUTPUT
     One-body correlation density matrix.
     """
-    D = Diagonal(exp.(complex(0,t)*E2))
+    D = Diagonal(exp.(complex(0,-t)*E2))
     D1 = U2 * D * transpose(U2)
     C2 = adjoint(D1) * C0 * D1
-    return Symmetric(C2)
+    return C2
 end
 
 

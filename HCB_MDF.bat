@@ -4,8 +4,9 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=24
 #SBATCH --mem=64gb
-#SBATCH --time=12:00:00
-#SBATCH --job-name=HCB_FiniteT_eq_beta=10_half_filling
+#SBATCH --time=8:00:00
+#SBATCH --job-name=HCB_finiteT_L=500_N=200_vary_beta
+#SBATCH --output=%x.o%j
 
 cd $SLURM_SUBMIT_DIR
 
